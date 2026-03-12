@@ -660,6 +660,19 @@ const PALETTE = [
 const UNCATEGORIZED_COLOR = '#94a3b8';
 let ruleIdCounter = 1;
 
+// Portfolio companies state — declared here so init() can call renderCompaniesList()
+let companies = [];
+let companyIdCounter = 1;
+(function loadCompanies() {
+  try {
+    const saved = localStorage.getItem('cal-analyzer-companies');
+    if (saved) {
+      companies = JSON.parse(saved);
+      companyIdCounter = Math.max(...companies.map(c => c.id), 0) + 1;
+    }
+  } catch(e) { companies = []; }
+})();
+
 /* =====================================================================
    INIT
    ===================================================================== */
@@ -1806,18 +1819,6 @@ function switchSuggestTab(tab) {
    PORTFOLIO COMPANIES
    ===================================================================== */
 // Stored as: [{id, name, category, color, members:[{role,name}]}]
-let companies = [];
-let companyIdCounter = 1;
-
-(function loadCompanies() {
-  try {
-    const saved = localStorage.getItem('cal-analyzer-companies');
-    if (saved) {
-      companies = JSON.parse(saved);
-      companyIdCounter = Math.max(...companies.map(c => c.id), 0) + 1;
-    }
-  } catch(e) { companies = []; }
-})();
 
 function saveCompanies() {
   localStorage.setItem('cal-analyzer-companies', JSON.stringify(companies));
