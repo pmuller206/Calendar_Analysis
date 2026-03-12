@@ -670,7 +670,10 @@ let ruleIdCounter = 1;
 
   const fileInput = document.getElementById('file-input');
   fileInput.addEventListener('change', e => {
-    if (e.target.files[0]) handleFile(e.target.files[0]);
+    if (e.target.files[0]) {
+      handleFile(e.target.files[0]);
+      e.target.value = ''; // reset so the same file can be re-selected
+    }
   });
 
   const uploadArea = document.getElementById('upload-area');
@@ -732,6 +735,7 @@ function handleFile(file) {
       showUploadError('Could not open file: ' + err.message);
     }
   };
+  byteReader.onerror = () => showUploadError('Could not open the file. Make sure it is a .csv file and try again.');
   byteReader.readAsArrayBuffer(file);
 }
 
@@ -1909,9 +1913,10 @@ function renderCompaniesList() {
   }
   if (emptyEl) emptyEl.style.display = 'none';
 
-  listEl.querySelectorAll('.company-card').forEach(el => el.remove());
+  listEl.querySelectorAll('.company-grid').forEach(el => el.remove());
 
   const grid = document.createElement('div');
+  grid.className = 'company-grid';
   grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px';
 
   grid.innerHTML = companies.map(co => {
@@ -1938,7 +1943,6 @@ function renderCompaniesList() {
   }).join('');
 
   listEl.appendChild(grid);
-  grid.classList.add('company-card');
 }
 </script>
 </body>
