@@ -6,6 +6,7 @@
 <title>Calendar Time Analyzer</title>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root {
   --bg: #f0f2f7;
@@ -25,75 +26,32 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-  font-size: 14px;
-  min-height: 100vh;
+  background: var(--bg); color: var(--text); line-height: 1.5; font-size: 14px; min-height: 100vh;
 }
 .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
 
 /* Header */
-.header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 12px;
-}
-.header-title { font-size: 22px; font-weight: 700; color: var(--text); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 12px; }
+.header-title { font-size: 22px; font-weight: 700; }
 .header-sub { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
 
 /* Cards */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  gap: 12px;
-}
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
 .card-title { font-size: 15px; font-weight: 600; }
 
 /* Upload */
-.upload-area {
-  border: 2px dashed var(--border);
-  border-radius: 10px;
-  padding: 40px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: #fafbff;
-}
-.upload-area:hover, .upload-area.drag-over {
-  border-color: var(--primary);
-  background: var(--primary-light);
-}
+.upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafbff; }
+.upload-area:hover, .upload-area.drag-over { border-color: var(--primary); background: var(--primary-light); }
 .upload-icon { font-size: 42px; margin-bottom: 12px; }
 .upload-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
 .upload-sub { color: var(--text-muted); font-size: 13px; }
+.upload-success { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 13px; color: #065f46; }
+.upload-success strong { font-weight: 600; }
+.upload-reparse { color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 12px; margin-left: auto; }
 
 /* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 14px;
-  border-radius: 7px;
-  border: none;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 7px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .btn-primary { background: var(--primary); color: #fff; }
 .btn-primary:hover { background: var(--primary-dark); }
 .btn-secondary { background: #fff; border: 1px solid var(--border); color: var(--text); }
@@ -102,41 +60,20 @@ body {
 .btn-danger:hover { background: #fee2e2; }
 .btn-success { background: var(--success); color: #fff; }
 .btn-success:hover { background: #059669; }
+.btn-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.btn-warning:hover { background: #fef3c7; }
 .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
 .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* Stats */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px 18px;
-  box-shadow: var(--shadow);
-}
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow); }
 .stat-value { font-size: 26px; font-weight: 700; color: var(--primary); line-height: 1; }
 .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
 /* Tabs */
-.tabs { display: flex; gap: 2px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-.tab {
-  padding: 9px 18px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: all 0.15s;
-  border-radius: 6px 6px 0 0;
-}
+.tabs { display: flex; gap: 2px; border-bottom: 2px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
+.tab { padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; border-radius: 6px 6px 0 0; }
 .tab.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
 .tab:hover:not(.active) { color: var(--text); background: var(--bg); }
 .tab-panel { display: none; }
@@ -148,275 +85,92 @@ body {
 .chart-wrap { position: relative; height: 300px; }
 
 /* Info bar */
-.info-bar {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 14px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #92400e;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
+.info-bar { display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 12px; color: #92400e; margin-bottom: 16px; line-height: 1.5; }
+
+/* Category toggles (overview + trend) */
+.cat-toggles { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.cat-toggle { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; border: 1.5px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s; user-select: none; background: #fff; }
+.cat-toggle.active { border-color: currentColor; }
+.cat-toggle:hover { opacity: 0.8; }
+.cat-toggle-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
 /* Rules table */
 .rules-wrap { overflow-x: auto; }
 table.rules-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-table.rules-tbl th {
-  background: var(--bg);
-  padding: 9px 12px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-}
+table.rules-tbl th { background: var(--bg); padding: 9px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
 table.rules-tbl td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 table.rules-tbl tr:last-child td { border-bottom: none; }
 table.rules-tbl tr:hover td { background: var(--bg); }
 .rules-empty { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 13px; }
-
-/* Rule inputs */
-.rule-input {
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
-  background: #fff;
-  color: var(--text);
-  outline: none;
-}
+.rule-input { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: #fff; color: var(--text); outline: none; }
 .rule-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,.1); }
-.color-swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: 7px;
-  border: 2px solid var(--border);
-  cursor: pointer;
-  padding: 0;
-  background: transparent;
-}
-.rule-order-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 6px;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1;
-}
+.color-swatch { width: 32px; height: 32px; border-radius: 7px; border: 2px solid var(--border); cursor: pointer; padding: 0; background: transparent; }
+.rule-order-btn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 12px; color: var(--text-muted); line-height: 1; }
 .rule-order-btn:hover { background: var(--bg); }
 
+/* Category override select in event table */
+.cat-select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; color: var(--text); outline: none; max-width: 160px; cursor: pointer; }
+.cat-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,.1); }
+.cat-select.has-override { border-color: var(--primary); background: var(--primary-light); font-weight: 500; }
+
 /* Events table */
-.table-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-.tbl-search, .tbl-select {
-  padding: 7px 11px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  font-size: 13px;
-  background: #fff;
-  color: var(--text);
-  outline: none;
-}
+.table-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.tbl-search, .tbl-select { padding: 7px 11px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; background: #fff; color: var(--text); outline: none; }
 .tbl-search:focus, .tbl-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,.1); }
 .tbl-search { flex: 1; min-width: 200px; }
 .events-tbl-wrap { overflow-x: auto; }
 table.events-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-table.events-tbl thead th {
-  background: var(--bg);
-  padding: 9px 12px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-}
+table.events-tbl thead th { background: var(--bg); padding: 9px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
 table.events-tbl thead th:hover { color: var(--primary); }
 table.events-tbl thead th.sort-asc::after { content: ' \2191'; color: var(--primary); }
 table.events-tbl thead th.sort-desc::after { content: ' \2193'; color: var(--primary); }
 table.events-tbl tbody tr { border-bottom: 1px solid var(--border); }
 table.events-tbl tbody tr:hover { background: var(--primary-light); }
+table.events-tbl tbody tr.row-removed { opacity: 0.45; background: #fafafa; text-decoration: line-through; }
+table.events-tbl tbody tr.row-removed:hover { background: #f5f5f5; }
 table.events-tbl tbody td { padding: 9px 12px; }
-.cell-subject { max-width: 320px; }
-.cell-subject-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; display: block; font-weight: 500; }
-.cell-attendees { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); font-size: 12px; }
+.cell-subject { max-width: 300px; }
+.cell-subject-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; display: block; font-weight: 500; }
+.cell-attendees { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); font-size: 12px; }
 .cell-match { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
 /* Badge */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-}
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
 .badge-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
 /* Pagination */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-  font-size: 13px;
-  color: var(--text-muted);
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; gap: 8px; }
 .page-btns { display: flex; gap: 4px; flex-wrap: wrap; }
-.page-btn {
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text);
-}
+.page-btn { padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; color: var(--text); }
 .page-btn:hover:not(:disabled) { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
 .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 .page-btn:disabled { opacity: 0.35; cursor: default; }
 
-/* Trend legend */
-.trend-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.cat-toggle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.15s;
-  user-select: none;
-  background: #fff;
-}
-.cat-toggle.active { border-color: currentColor; }
-.cat-toggle-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-/* Upload success bar */
-.upload-success {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #065f46;
-}
-.upload-success strong { font-weight: 600; }
-.upload-reparse { color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 12px; margin-left: auto; }
-
-/* No data message */
-.no-data { text-align: center; padding: 60px 0; color: var(--text-muted); font-size: 14px; }
-.no-data-icon { font-size: 36px; margin-bottom: 12px; }
-
-/* Suggestions panel */
+/* Suggestions */
 .suggest-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
-.suggest-tab {
-  padding: 6px 14px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: all 0.15s;
-}
+.suggest-tab { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
 .suggest-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 .suggest-tab:hover:not(.active) { background: var(--bg); }
-.suggest-list { display: flex; flex-direction: column; gap: 6px; max-height: 440px; overflow-y: auto; padding-right: 4px; }
-.suggest-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #fafbff;
-  transition: background 0.15s;
-  flex-wrap: wrap;
-}
+.suggest-list { display: flex; flex-direction: column; gap: 6px; max-height: 400px; overflow-y: auto; padding-right: 4px; }
+.suggest-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: #fafbff; transition: background 0.15s; flex-wrap: wrap; }
 .suggest-item:hover { background: var(--primary-light); border-color: #c7d2fe; }
 .suggest-item.added { opacity: 0.55; background: #f0fdf4; border-color: #bbf7d0; pointer-events: none; }
 .suggest-name { flex: 1; min-width: 160px; }
-.suggest-name-text { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px; }
+.suggest-name-text { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 380px; }
 .suggest-pills { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
-.suggest-pill {
-  padding: 1px 7px;
-  border-radius: 20px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
+.suggest-pill { padding: 1px 7px; border-radius: 20px; background: var(--bg); border: 1px solid var(--border); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
 .suggest-pill.highlight { background: var(--primary-light); border-color: #c7d2fe; color: var(--primary); }
-.suggest-cat-input {
-  width: 180px;
-  padding: 5px 9px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  background: #fff;
-  color: var(--text);
-  outline: none;
-  flex-shrink: 0;
-}
+.suggest-cat-input { width: 180px; padding: 5px 9px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; color: var(--text); outline: none; flex-shrink: 0; }
 .suggest-cat-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,.1); }
 .suggest-controls { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
-.suggest-added-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: #dcfce7;
-  color: #166534;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.suggest-threshold {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--text-muted);
-}
-.suggest-min-input {
-  width: 52px;
-  padding: 4px 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  text-align: center;
-  outline: none;
-  background: #fff;
-}
+.suggest-added-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; background: #dcfce7; color: #166534; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.suggest-threshold { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.suggest-min-input { width: 52px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; text-align: center; outline: none; background: #fff; }
 .suggest-min-input:focus { border-color: var(--primary); }
 .suggest-empty { padding: 32px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+/* Portfolio */
+.company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 
 /* Responsive */
 @media (max-width: 800px) {
@@ -443,9 +197,7 @@ table.events-tbl tbody td { padding: 9px 12px; }
 
   <!-- Upload Card -->
   <div class="card" id="upload-card">
-    <div class="card-header">
-      <span class="card-title">Load Calendar Data</span>
-    </div>
+    <div class="card-header"><span class="card-title">Load Calendar Data</span></div>
     <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">&#128197;</div>
       <div class="upload-title">Drop your Outlook calendar CSV here</div>
@@ -455,7 +207,7 @@ table.events-tbl tbody td { padding: 9px 12px; }
     <div id="upload-status" style="margin-top:12px;display:none"></div>
   </div>
 
-  <!-- Portfolio Companies Quick-Setup Card -->
+  <!-- Portfolio Companies Card (always visible) -->
   <div class="card" id="portfolio-card">
     <div class="card-header">
       <div>
@@ -464,8 +216,6 @@ table.events-tbl tbody td { padding: 9px 12px; }
       </div>
       <button class="btn btn-primary btn-sm" onclick="showAddCompanyForm()">+ Add Company</button>
     </div>
-
-    <!-- Add form (hidden by default) -->
     <div id="company-form" style="display:none;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;background:#fafbff">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
         <div>
@@ -487,69 +237,10 @@ table.events-tbl tbody td { padding: 9px 12px; }
         <button class="btn btn-primary btn-sm" onclick="saveCompany()">Create Rule</button>
       </div>
     </div>
-
-    <!-- Companies list -->
     <div id="companies-list">
       <div id="companies-empty" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
         No portfolio companies added yet &mdash; click <strong>+ Add Company</strong> to get started.
       </div>
-    </div>
-  </div>
-
-  <!-- Smart Suggestions Card -->
-  <div class="card" id="suggestions-card" style="display:none">
-    <div class="card-header">
-      <div>
-        <span class="card-title">Smart Suggestions</span>
-        <span style="font-size:12px;color:var(--text-muted);margin-left:8px">Auto-detected recurring events &amp; meetings</span>
-      </div>
-      <div class="btn-group">
-        <div class="suggest-threshold">
-          Min. occurrences:
-          <input type="number" class="suggest-min-input" id="suggest-min" value="2" min="2" max="99" onchange="renderSuggestions()">
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="addAllSuggestions()">+ Add All as Rules</button>
-      </div>
-    </div>
-    <div class="suggest-tabs">
-      <button class="suggest-tab active" id="stab-subject" onclick="switchSuggestTab('subject')">By Subject</button>
-      <button class="suggest-tab" id="stab-attendees" onclick="switchSuggestTab('attendees')">By Attendees</button>
-    </div>
-    <div id="suggest-list" class="suggest-list"></div>
-    <div id="suggest-empty" class="suggest-empty" style="display:none">No recurring patterns found with the current threshold.</div>
-  </div>
-
-  <!-- Mapping Rules Card -->
-  <div class="card" id="rules-card" style="display:none">
-    <div class="card-header">
-      <span class="card-title">Category Mapping Rules</span>
-      <div class="btn-group">
-        <button class="btn btn-secondary btn-sm" onclick="importRules()" title="Import rules from JSON file">&#8659; Import</button>
-        <button class="btn btn-secondary btn-sm" onclick="exportRules()" title="Export rules as JSON">&#8657; Export</button>
-        <button class="btn btn-primary btn-sm" onclick="addRule()">+ Add Rule</button>
-      </div>
-    </div>
-    <div class="info-bar">
-      &#9888; Rules are checked <strong>in order top to bottom</strong> &mdash; the first matching rule wins. Keywords are comma-separated and matched case-insensitively against the event <strong>title</strong> and <strong>attendee names</strong>. Events with no match appear as <em>Uncategorized</em>.
-    </div>
-    <div class="rules-wrap">
-      <table class="rules-tbl">
-        <thead>
-          <tr>
-            <th style="width:36px">#</th>
-            <th style="width:32px"></th>
-            <th>Keywords (comma-separated)</th>
-            <th style="width:200px">Category Name</th>
-            <th style="width:50px">Color</th>
-            <th style="width:100px">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="rules-tbody">
-          <tr id="rules-empty-row">
-            <td colspan="6" class="rules-empty">No rules yet &mdash; click <strong>+ Add Rule</strong> to get started.</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
@@ -558,15 +249,20 @@ table.events-tbl tbody td { padding: 9px 12px; }
     <!-- Stats -->
     <div class="stats-row" id="stats-row"></div>
 
-    <!-- Tabs -->
+    <!-- Tabs: Overview | Trend | Events | Rules -->
     <div class="tabs">
       <button class="tab active" onclick="switchTab('overview')" id="tab-btn-overview">Overview</button>
       <button class="tab" onclick="switchTab('trend')" id="tab-btn-trend">Monthly Trend</button>
       <button class="tab" onclick="switchTab('events')" id="tab-btn-events">Event Table</button>
+      <button class="tab" onclick="switchTab('rules')" id="tab-btn-rules">Rules &amp; Mapping</button>
     </div>
 
     <!-- Overview Tab -->
     <div class="tab-panel active" id="tab-overview">
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">FILTER CATEGORIES</div>
+        <div class="cat-toggles" id="overview-toggles"></div>
+      </div>
       <div class="charts-grid">
         <div class="chart-card">
           <div class="card-header" style="margin-bottom:12px"><span class="card-title">Time by Category (%)</span></div>
@@ -586,7 +282,7 @@ table.events-tbl tbody td { padding: 9px 12px; }
           <span class="card-title">Monthly Hours by Category</span>
           <span style="font-size:12px;color:var(--text-muted)">Click categories below to toggle</span>
         </div>
-        <div class="trend-filters" id="trend-filters"></div>
+        <div class="cat-toggles" id="trend-filters"></div>
         <div style="position:relative;height:420px"><canvas id="trend-chart"></canvas></div>
       </div>
     </div>
@@ -596,7 +292,9 @@ table.events-tbl tbody td { padding: 9px 12px; }
       <div class="chart-card" style="padding:20px">
         <div class="card-header" style="margin-bottom:12px">
           <span class="card-title">All Events</span>
-          <span id="events-count-label" style="font-size:12px;color:var(--text-muted)"></span>
+          <div class="btn-group">
+            <span id="events-count-label" style="font-size:12px;color:var(--text-muted);align-self:center"></span>
+          </div>
         </div>
         <div class="table-controls">
           <input type="text" class="tbl-search" id="tbl-search" placeholder="Search title or attendees..." oninput="onFilterChange()">
@@ -605,6 +303,11 @@ table.events-tbl tbody td { padding: 9px 12px; }
           </select>
           <select class="tbl-select" id="month-filter" onchange="onFilterChange()">
             <option value="all">All Months</option>
+          </select>
+          <select class="tbl-select" id="removed-filter" onchange="onFilterChange()">
+            <option value="active">Hide Removed</option>
+            <option value="all">Show All Events</option>
+            <option value="removed">Removed Only</option>
           </select>
         </div>
         <div class="events-tbl-wrap">
@@ -615,6 +318,7 @@ table.events-tbl tbody td { padding: 9px 12px; }
                 <th id="th-start" onclick="sortTable('start')" class="sort-asc">Date</th>
                 <th id="th-duration" onclick="sortTable('duration')">Duration (h)</th>
                 <th id="th-category" onclick="sortTable('category')">Category</th>
+                <th style="width:170px;cursor:default">Override Category</th>
                 <th id="th-attendees" onclick="sortTable('attendees')">Attendees</th>
               </tr>
             </thead>
@@ -624,7 +328,69 @@ table.events-tbl tbody td { padding: 9px 12px; }
         <div class="pagination" id="pagination"></div>
       </div>
     </div>
-  </div>
+
+    <!-- Rules & Mapping Tab -->
+    <div class="tab-panel" id="tab-rules">
+
+      <!-- Smart Suggestions -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <span class="card-title">Smart Suggestions</span>
+            <span style="font-size:12px;color:var(--text-muted);margin-left:8px">Auto-detected recurring events &amp; meetings, sorted by total hours</span>
+          </div>
+          <div class="btn-group">
+            <div class="suggest-threshold">
+              Min. occurrences:
+              <input type="number" class="suggest-min-input" id="suggest-min" value="2" min="2" max="99" onchange="renderSuggestions()">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAllSuggestions()">+ Add All as Rules</button>
+          </div>
+        </div>
+        <div class="suggest-tabs">
+          <button class="suggest-tab active" id="stab-subject" onclick="switchSuggestTab('subject')">By Subject</button>
+          <button class="suggest-tab" id="stab-attendees" onclick="switchSuggestTab('attendees')">By Attendees</button>
+        </div>
+        <div id="suggest-list" class="suggest-list"></div>
+        <div id="suggest-empty" class="suggest-empty" style="display:none">No recurring patterns found. Upload a CSV or lower the minimum occurrences threshold.</div>
+      </div>
+
+      <!-- Mapping Rules -->
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header">
+          <span class="card-title">Category Mapping Rules</span>
+          <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" onclick="importRules()">&#8659; Import</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportRules()">&#8657; Export</button>
+            <button class="btn btn-primary btn-sm" onclick="addRule()">+ Add Rule</button>
+          </div>
+        </div>
+        <div class="info-bar">
+          &#9888; Rules are checked <strong>in order top to bottom</strong> &mdash; first match wins. Keywords are comma-separated and matched case-insensitively against event <strong>title</strong> and <strong>attendee names</strong>. Unmatched events appear as <em>Uncategorized</em>.
+        </div>
+        <div class="rules-wrap">
+          <table class="rules-tbl">
+            <thead>
+              <tr>
+                <th style="width:36px">#</th>
+                <th style="width:32px"></th>
+                <th>Keywords (comma-separated)</th>
+                <th style="width:200px">Category Name</th>
+                <th style="width:50px">Color</th>
+                <th style="width:100px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rules-tbody">
+              <tr id="rules-empty-row">
+                <td colspan="6" class="rules-empty">No rules yet &mdash; click <strong>+ Add Rule</strong> to get started.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
 
 </div><!-- /container -->
 
@@ -636,13 +402,15 @@ table.events-tbl tbody td { padding: 9px 12px; }
    ===================================================================== */
 const S = {
   rawEvents: [],
-  events: [],       // categorized
-  rules: [],        // [{id, keywords[], category, color}]
+  events: [],
+  rules: [],
   charts: { donut: null, bar: null, trend: null },
-  hiddenCats: new Set(),
+  hiddenCats: new Set(),        // trend chart
+  hiddenOverviewCats: new Set(), // overview charts
+  overrides: new Map(),          // _id -> { category, color } manual per-event overrides
   table: {
     sort: { col: 'start', dir: 'asc' },
-    filters: { text: '', category: 'all', month: 'all' },
+    filters: { text: '', category: 'all', month: 'all', removed: 'active' },
     page: 1,
     pageSize: 50,
   },
@@ -660,7 +428,7 @@ const PALETTE = [
 const UNCATEGORIZED_COLOR = '#94a3b8';
 let ruleIdCounter = 1;
 
-// Portfolio companies state — declared here so init() can call renderCompaniesList()
+// Portfolio companies — declared before init()
 let companies = [];
 let companyIdCounter = 1;
 (function loadCompanies() {
@@ -677,40 +445,36 @@ let companyIdCounter = 1;
    INIT
    ===================================================================== */
 (function init() {
+  // Register datalabels plugin only for bar chart (disable globally, enable per chart)
+  Chart.register(ChartDataLabels);
+  Chart.defaults.set('plugins.datalabels', { display: false });
+
   loadRulesFromStorage();
   renderRulesTable();
   renderCompaniesList();
 
   const fileInput = document.getElementById('file-input');
   fileInput.addEventListener('change', e => {
-    if (e.target.files[0]) {
-      handleFile(e.target.files[0]);
-      e.target.value = ''; // reset so the same file can be re-selected
-    }
+    if (e.target.files[0]) { handleFile(e.target.files[0]); e.target.value = ''; }
   });
-
   const uploadArea = document.getElementById('upload-area');
   uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
   uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
   uploadArea.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadArea.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
+    e.preventDefault(); uploadArea.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; if (f) handleFile(f);
   });
 })();
 
 /* =====================================================================
-   FILE HANDLING & PARSING
+   FILE HANDLING
    ===================================================================== */
 function handleFile(file) {
-  // Read raw bytes first so we can detect encoding from the BOM
   const byteReader = new FileReader();
   byteReader.onload = e => {
     try {
       const bytes = new Uint8Array(e.target.result.slice(0, 4));
       let encoding = 'UTF-8';
-      // UTF-16 LE BOM: FF FE  |  UTF-16 BE BOM: FE FF
       if (bytes[0] === 0xFF && bytes[1] === 0xFE) encoding = 'UTF-16LE';
       else if (bytes[0] === 0xFE && bytes[1] === 0xFF) encoding = 'UTF-16BE';
 
@@ -718,37 +482,24 @@ function handleFile(file) {
       textReader.onload = te => {
         try {
           let text = te.target.result;
-          // Strip UTF-8 BOM if present
           if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-
           const result = Papa.parse(text, {
-            header: true,
-            skipEmptyLines: true,
-            transformHeader: h => h.replace(/^\uFEFF/, '').trim(), // strip BOM from any header
+            header: true, skipEmptyLines: true,
+            transformHeader: h => h.replace(/^\uFEFF/, '').trim(),
           });
-
           if (!result.data || result.data.length === 0) {
-            showUploadError(
-              'No data rows found. Make sure you exported the calendar via ' +
-              '<strong>File &rarr; Open &amp; Export &rarr; Import/Export &rarr; Export to a File &rarr; Comma Separated Values</strong>.' +
-              (result.errors.length ? '<br>Parser error: ' + result.errors[0].message : '')
-            );
+            showUploadError('No data rows found. Export via <strong>File &rarr; Open &amp; Export &rarr; Import/Export &rarr; Export to a File &rarr; Comma Separated Values</strong>.' +
+              (result.errors.length ? '<br>Error: ' + result.errors[0].message : ''));
             return;
           }
-
           parseEvents(result.data, result.meta.fields);
-        } catch(err) {
-          showUploadError('Failed to parse CSV: ' + err.message);
-          console.error('CSV parse error:', err);
-        }
+        } catch(err) { showUploadError('Failed to parse CSV: ' + err.message); console.error(err); }
       };
-      textReader.onerror = () => showUploadError('Could not read the file. Try saving it as UTF-8 CSV from Excel first.');
+      textReader.onerror = () => showUploadError('Could not read file. Try saving as UTF-8 CSV.');
       textReader.readAsText(file, encoding);
-    } catch(err) {
-      showUploadError('Could not open file: ' + err.message);
-    }
+    } catch(err) { showUploadError('Could not open file: ' + err.message); }
   };
-  byteReader.onerror = () => showUploadError('Could not open the file. Make sure it is a .csv file and try again.');
+  byteReader.onerror = () => showUploadError('Could not open file. Make sure it is a .csv file.');
   byteReader.readAsArrayBuffer(file);
 }
 
@@ -759,18 +510,15 @@ function showUploadError(msg) {
 }
 
 function cleanHeader(h) {
-  // Remove BOM, zero-width spaces, non-breaking spaces, leading/trailing whitespace
   return h.replace(/[\uFEFF\u200B\u00A0]/g, '').trim().toLowerCase();
 }
 
 function detectCol(fields, ...candidates) {
   const cleaned = fields.map(f => ({ orig: f, clean: cleanHeader(f) }));
-  // Exact match first
   for (const c of candidates) {
     const found = cleaned.find(f => f.clean === c.toLowerCase());
     if (found) return found.orig;
   }
-  // Partial match fallback (field contains the candidate string)
   for (const c of candidates) {
     const found = cleaned.find(f => f.clean.includes(c.toLowerCase()));
     if (found) return found.orig;
@@ -778,33 +526,32 @@ function detectCol(fields, ...candidates) {
   return null;
 }
 
+/* =====================================================================
+   PARSING
+   ===================================================================== */
+let _eventIdCounter = 0;
+
 function parseEvents(rows, fields) {
+  _eventIdCounter = 0;
   const cols = {
-    subject:    detectCol(fields, 'subject', 'title', 'summary', 'name'),
-    startDate:  detectCol(fields, 'start date', 'startdate', 'start'),
-    startTime:  detectCol(fields, 'start time', 'starttime'),
-    endDate:    detectCol(fields, 'end date', 'enddate', 'end'),
-    endTime:    detectCol(fields, 'end time', 'endtime'),
-    allDay:     detectCol(fields, 'all day event', 'allday', 'all day', 'all-day'),
-    organizer:  detectCol(fields, 'meeting organizer', 'organizer', 'from', 'sender'),
-    reqAttend:  detectCol(fields, 'required attendees', 'attendees', 'participants', 'required'),
-    optAttend:  detectCol(fields, 'optional attendees', 'optional participants', 'optional'),
-    categories: detectCol(fields, 'categories', 'category', 'labels'),
-    location:   detectCol(fields, 'location'),
+    subject:   detectCol(fields, 'subject', 'title', 'summary', 'name'),
+    startDate: detectCol(fields, 'start date', 'startdate', 'start'),
+    startTime: detectCol(fields, 'start time', 'starttime'),
+    endDate:   detectCol(fields, 'end date', 'enddate', 'end'),
+    endTime:   detectCol(fields, 'end time', 'endtime'),
+    allDay:    detectCol(fields, 'all day event', 'allday', 'all day', 'all-day'),
+    organizer: detectCol(fields, 'meeting organizer', 'organizer', 'from', 'sender'),
+    reqAttend: detectCol(fields, 'required attendees', 'attendees', 'participants', 'required'),
+    optAttend: detectCol(fields, 'optional attendees', 'optional participants', 'optional'),
+    categories:detectCol(fields, 'categories', 'category', 'labels'),
+    location:  detectCol(fields, 'location'),
   };
 
-  // Always log what we found so the user can inspect via browser console
-  console.log('[Calendar Analyzer] Detected columns:', fields);
-  console.log('[Calendar Analyzer] Mapped columns:', cols);
+  console.log('[Calendar Analyzer] Columns detected:', fields);
+  console.log('[Calendar Analyzer] Mapped to:', cols);
 
   if (!cols.subject) {
-    showUploadError(
-      `Could not find a <strong>Subject</strong> column. ` +
-      `Columns found in your file: <code>${fields.map(f => escHtml(f)).join(', ')}</code><br><br>` +
-      `This usually means the file is not a standard Outlook calendar export. ` +
-      `Export via <strong>File &rarr; Open &amp; Export &rarr; Import/Export &rarr; Export to a File &rarr; Comma Separated Values</strong>, ` +
-      `select your Calendar folder, and try again.`
-    );
+    showUploadError(`Could not find a <strong>Subject</strong> column. Columns in your file: <code>${fields.map(f => escHtml(f)).join(', ')}</code><br>Export via <strong>File &rarr; Open &amp; Export &rarr; Import/Export &rarr; Export to a File &rarr; Comma Separated Values</strong> and select your Calendar folder.`);
     return;
   }
 
@@ -813,98 +560,66 @@ function parseEvents(rows, fields) {
     const subject = (row[cols.subject] || '').trim();
     if (!subject) continue;
 
-    const startDateStr = cols.startDate ? row[cols.startDate] : '';
-    const startTimeStr = cols.startTime ? row[cols.startTime] : '';
-    const endDateStr   = cols.endDate   ? row[cols.endDate]   : '';
-    const endTimeStr   = cols.endTime   ? row[cols.endTime]   : '';
-    const allDayStr    = cols.allDay    ? row[cols.allDay]    : '';
-    const isAllDay     = /^(true|yes|1)$/i.test(allDayStr.trim());
-
-    const startDT = parseDateTime(startDateStr, startTimeStr);
-    const endDT   = parseDateTime(endDateStr, endTimeStr);
+    const startDT = parseDateTime(cols.startDate ? row[cols.startDate] : '', cols.startTime ? row[cols.startTime] : '');
+    const endDT   = parseDateTime(cols.endDate   ? row[cols.endDate]   : '', cols.endTime   ? row[cols.endTime]   : '');
+    const allDayStr = cols.allDay ? row[cols.allDay] : '';
+    const isAllDay  = /^(true|yes|1)$/i.test((allDayStr || '').trim());
 
     let durationH = 0;
     if (startDT && endDT && endDT > startDT) {
-      if (isAllDay) {
-        const days = (endDT - startDT) / 86400000;
-        durationH = Math.max(days, 1) * 8;
-      } else {
-        durationH = (endDT - startDT) / 3600000;
-      }
-      // Cap at 24h for single events (sanity)
-      if (durationH > 24) durationH = Math.min(durationH, 168); // allow up to 1 week
+      durationH = isAllDay
+        ? Math.max((endDT - startDT) / 86400000, 1) * 8
+        : (endDT - startDT) / 3600000;
+      if (durationH > 168) durationH = 168;
     }
     durationH = Math.round(durationH * 100) / 100;
 
-    const organizer  = cols.organizer  ? (row[cols.organizer]  || '') : '';
-    const reqAttend  = cols.reqAttend  ? (row[cols.reqAttend]  || '') : '';
-    const optAttend  = cols.optAttend  ? (row[cols.optAttend]  || '') : '';
-    const attendees  = [organizer, reqAttend, optAttend].filter(Boolean).join('; ');
-    const location   = cols.location   ? (row[cols.location]   || '') : '';
-    const categories = cols.categories ? (row[cols.categories] || '') : '';
+    const organizer = cols.organizer  ? (row[cols.organizer]  || '') : '';
+    const reqAttend = cols.reqAttend  ? (row[cols.reqAttend]  || '') : '';
+    const optAttend = cols.optAttend  ? (row[cols.optAttend]  || '') : '';
+    const attendees = [organizer, reqAttend, optAttend].filter(Boolean).join('; ');
 
     events.push({
-      subject,
-      start: startDT,
-      end: endDT,
-      durationH,
-      isAllDay,
-      organizer,
-      attendees,
-      location,
-      categories,
-      category: 'Uncategorized',
-      catColor: UNCATEGORIZED_COLOR,
-      matchedKeyword: '',
+      _id: _eventIdCounter++,
+      subject, start: startDT, end: endDT, durationH, isAllDay,
+      organizer, attendees,
+      location:   cols.location   ? (row[cols.location]   || '') : '',
+      categories: cols.categories ? (row[cols.categories] || '') : '',
+      category: 'Uncategorized', catColor: UNCATEGORIZED_COLOR, matchedKeyword: '',
     });
   }
 
-  if (events.length === 0) {
-    showUploadError('Parsed the file but found no valid events. Check that your CSV has Subject, Start Date, and End Date columns.');
+  if (!events.length) {
+    showUploadError('Parsed the file but found no valid events. Check that the CSV has Subject, Start Date, and End Date columns.');
     return;
   }
 
   S.rawEvents = events;
+  S.overrides = new Map(); // reset overrides on new file
   applyCategories();
   onDataLoaded(events.length);
 }
 
 function parseDateTime(dateStr, timeStr) {
   if (!dateStr || !dateStr.trim()) return null;
-  dateStr = dateStr.trim();
-  timeStr = (timeStr || '').trim();
+  dateStr = dateStr.trim(); timeStr = (timeStr || '').trim();
 
-  // Try combined: "1/14/2025 9:00 AM" or ISO "2025-01-14T09:00:00"
   if (!timeStr && (dateStr.includes('T') || /\d{1,2}:\d{2}/.test(dateStr))) {
-    const d = new Date(dateStr);
-    if (!isNaN(d)) return d;
+    const d = new Date(dateStr); if (!isNaN(d)) return d;
   }
-
-  // MM/DD/YYYY or M/D/YYYY
   const mdy = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (mdy) {
     const [, mm, dd, yyyy] = mdy.map(Number);
-    if (timeStr) {
-      const tp = parseTimeStr(timeStr);
-      if (tp) return new Date(yyyy, mm - 1, dd, tp.h, tp.m, 0);
-    }
-    return new Date(yyyy, mm - 1, dd, 0, 0, 0);
+    if (timeStr) { const tp = parseTimeStr(timeStr); if (tp) return new Date(yyyy, mm-1, dd, tp.h, tp.m, 0); }
+    return new Date(yyyy, mm-1, dd, 0, 0, 0);
   }
-
-  // YYYY-MM-DD
   const ymd = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (ymd) {
     const [, yyyy, mm, dd] = ymd.map(Number);
-    if (timeStr) {
-      const tp = parseTimeStr(timeStr);
-      if (tp) return new Date(yyyy, mm - 1, dd, tp.h, tp.m, 0);
-    }
-    return new Date(yyyy, mm - 1, dd, 0, 0, 0);
+    if (timeStr) { const tp = parseTimeStr(timeStr); if (tp) return new Date(yyyy, mm-1, dd, tp.h, tp.m, 0); }
+    return new Date(yyyy, mm-1, dd, 0, 0, 0);
   }
-
-  // Fallback
-  const combined = timeStr ? `${dateStr} ${timeStr}` : dateStr;
-  const d = new Date(combined);
+  const d = new Date(timeStr ? `${dateStr} ${timeStr}` : dateStr);
   return isNaN(d) ? null : d;
 }
 
@@ -912,9 +627,9 @@ function parseTimeStr(s) {
   const m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
   if (!m) return null;
   let h = parseInt(m[1]), min = parseInt(m[2]);
-  const period = (m[3] || '').toUpperCase();
-  if (period === 'PM' && h !== 12) h += 12;
-  if (period === 'AM' && h === 12) h = 0;
+  const p = (m[3] || '').toUpperCase();
+  if (p === 'PM' && h !== 12) h += 12;
+  if (p === 'AM' && h === 12) h = 0;
   return { h, m: min };
 }
 
@@ -922,15 +637,17 @@ function parseTimeStr(s) {
    CATEGORIZATION
    ===================================================================== */
 function applyCategories() {
-  const rules = S.rules;
   S.events = S.rawEvents.map(ev => {
-    const searchText = (ev.subject + ' ' + ev.attendees).toLowerCase();
-    for (const rule of rules) {
+    // Manual override wins over rules
+    const override = S.overrides.get(ev._id);
+    if (override) return { ...ev, category: override.category, catColor: override.color, matchedKeyword: '' };
+
+    const text = (ev.subject + ' ' + ev.attendees).toLowerCase();
+    for (const rule of S.rules) {
       for (const kw of rule.keywords) {
         const k = kw.trim().toLowerCase();
-        if (k && searchText.includes(k)) {
+        if (k && text.includes(k))
           return { ...ev, category: rule.category, catColor: rule.color, matchedKeyword: kw.trim() };
-        }
       }
     }
     return { ...ev, category: 'Uncategorized', catColor: UNCATEGORIZED_COLOR, matchedKeyword: '' };
@@ -938,17 +655,13 @@ function applyCategories() {
 }
 
 /* =====================================================================
-   DATA LOADED → SHOW UI
+   DATA LOADED
    ===================================================================== */
 function onDataLoaded(count) {
   document.getElementById('header-actions').style.display = 'flex';
-  document.getElementById('portfolio-card').style.display = 'block';
-  document.getElementById('suggestions-card').style.display = 'block';
-  document.getElementById('rules-card').style.display = 'block';
   document.getElementById('dashboard').style.display = 'block';
   renderSuggestions();
 
-  // Show success bar inside upload card
   const statusEl = document.getElementById('upload-status');
   statusEl.style.display = 'block';
   const dateRange = getDateRange();
@@ -957,10 +670,9 @@ function onDataLoaded(count) {
     <span>Loaded <strong>${count.toLocaleString()} events</strong>${dateRange ? ' &nbsp;&middot;&nbsp; ' + dateRange : ''}</span>
     <span class="upload-reparse" onclick="showUpload()">Load a different file</span>
   </div>`;
-
-  // Collapse upload area
   document.getElementById('upload-area').style.display = 'none';
-
+  // Pre-hide Removed category so it doesn't clutter charts by default
+  S.hiddenOverviewCats.add('Removed');
   populateFilters();
   renderDashboard();
 }
@@ -969,16 +681,44 @@ function showUpload() {
   document.getElementById('upload-area').style.display = 'block';
   document.getElementById('upload-status').style.display = 'none';
   document.getElementById('file-input').value = '';
-  document.getElementById('suggestions-card').style.display = 'none';
 }
 
 function getDateRange() {
-  if (!S.rawEvents.length) return '';
   const dates = S.rawEvents.map(e => e.start).filter(Boolean);
   if (!dates.length) return '';
-  const min = new Date(Math.min(...dates));
-  const max = new Date(Math.max(...dates));
+  const min = new Date(Math.min(...dates)), max = new Date(Math.max(...dates));
   return `${fmtDate(min)} \u2013 ${fmtDate(max)}`;
+}
+
+/* =====================================================================
+   CATEGORY OVERRIDES
+   ===================================================================== */
+const REMOVED_COLOR = '#94a3b8';
+
+function getCategoryColor(category) {
+  if (category === 'Removed') return REMOVED_COLOR;
+  if (category === 'Uncategorized') return UNCATEGORIZED_COLOR;
+  const rule = S.rules.find(r => r.category === category);
+  return rule ? rule.color : PALETTE[0];
+}
+
+function getAvailableCategories() {
+  const fromRules = [...new Set(S.rules.map(r => r.category).filter(Boolean))].sort();
+  return [...fromRules, 'Uncategorized', 'Removed'];
+}
+
+function setEventCategory(id, category) {
+  if (category === '__clear__') {
+    S.overrides.delete(id);
+  } else {
+    S.overrides.set(id, { category, color: getCategoryColor(category) });
+  }
+  applyCategories();
+  renderDashboard();
+}
+
+function activeEvents() {
+  return S.events.filter(e => e.category !== 'Removed');
 }
 
 /* =====================================================================
@@ -1001,29 +741,20 @@ function saveRulesToStorage() {
 function getRuleFromDOM(id) {
   const row = document.getElementById('rule-row-' + id);
   if (!row) return null;
-  const kwInput = row.querySelector('.rule-kw');
-  const catInput = row.querySelector('.rule-cat');
-  const colorInput = row.querySelector('.rule-color');
   return {
     id,
-    keywords: (kwInput ? kwInput.value : '').split(',').map(k => k.trim()).filter(Boolean),
-    category: catInput ? catInput.value.trim() : '',
-    color: colorInput ? colorInput.value : PALETTE[0],
+    keywords: (row.querySelector('.rule-kw')?.value || '').split(',').map(k => k.trim()).filter(Boolean),
+    category: row.querySelector('.rule-cat')?.value.trim() || '',
+    color: row.querySelector('.rule-color')?.value || PALETTE[0],
   };
 }
 
 function addRule(prefill = null) {
   const id = ruleIdCounter++;
-  const colorIdx = S.rules.length % PALETTE.length;
-  const rule = prefill || { id, keywords: [], category: '', color: PALETTE[colorIdx] };
-  rule.id = id;
+  const rule = prefill ? { ...prefill, id } : { id, keywords: [], category: '', color: PALETTE[S.rules.length % PALETTE.length] };
   S.rules.push(rule);
   renderRulesTable();
-  // focus the new row's keyword input
-  setTimeout(() => {
-    const kw = document.querySelector('#rule-row-' + id + ' .rule-kw');
-    if (kw) kw.focus();
-  }, 50);
+  setTimeout(() => { document.querySelector('#rule-row-' + id + ' .rule-kw')?.focus(); }, 50);
 }
 
 function deleteRule(id) {
@@ -1044,10 +775,7 @@ function moveRule(id, dir) {
 }
 
 function collectRuleDOMValues() {
-  S.rules = S.rules.map(r => {
-    const updated = getRuleFromDOM(r.id);
-    return updated || r;
-  }).filter(Boolean);
+  S.rules = S.rules.map(r => getRuleFromDOM(r.id) || r).filter(Boolean);
 }
 
 function commitRules() {
@@ -1066,35 +794,27 @@ function renderRulesTable() {
   tbody.innerHTML = S.rules.map((rule, idx) => `
     <tr id="rule-row-${rule.id}">
       <td style="color:var(--text-muted);font-size:12px;text-align:center">${idx + 1}</td>
-      <td>
-        <div style="display:flex;flex-direction:column;gap:2px">
-          <button class="rule-order-btn" onclick="moveRule(${rule.id},-1)" title="Move up" ${idx===0?'disabled':''}>&#8593;</button>
-          <button class="rule-order-btn" onclick="moveRule(${rule.id},1)" title="Move down" ${idx===S.rules.length-1?'disabled':''}>&#8595;</button>
-        </div>
-      </td>
+      <td><div style="display:flex;flex-direction:column;gap:2px">
+        <button class="rule-order-btn" onclick="moveRule(${rule.id},-1)" ${idx===0?'disabled':''}>&#8593;</button>
+        <button class="rule-order-btn" onclick="moveRule(${rule.id},1)" ${idx===S.rules.length-1?'disabled':''}>&#8595;</button>
+      </div></td>
       <td><input class="rule-input rule-kw" type="text" value="${escHtml(rule.keywords.join(', '))}" placeholder="e.g. John Smith, Acme Corp, Board" onblur="commitRules()"></td>
       <td><input class="rule-input rule-cat" type="text" value="${escHtml(rule.category)}" placeholder="Category name" onblur="commitRules()"></td>
-      <td><input type="color" class="color-swatch rule-color" value="${rule.color}" onchange="commitRules()" title="Pick color"></td>
-      <td>
-        <button class="btn btn-danger btn-sm" onclick="deleteRule(${rule.id})">&#10005; Remove</button>
-      </td>
-    </tr>
-  `).join('');
+      <td><input type="color" class="color-swatch rule-color" value="${rule.color}" onchange="commitRules()"></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteRule(${rule.id})">&#10005; Remove</button></td>
+    </tr>`).join('');
 }
 
 function exportRules() {
   collectRuleDOMValues();
-  const json = JSON.stringify(S.rules, null, 2);
-  downloadText(json, 'calendar-rules.json', 'application/json');
+  downloadText(JSON.stringify(S.rules, null, 2), 'calendar-rules.json', 'application/json');
 }
 
 function importRules() {
   const inp = document.createElement('input');
-  inp.type = 'file';
-  inp.accept = '.json';
+  inp.type = 'file'; inp.accept = '.json';
   inp.onchange = e => {
-    const f = e.target.files[0];
-    if (!f) return;
+    const f = e.target.files[0]; if (!f) return;
     const reader = new FileReader();
     reader.onload = ev => {
       try {
@@ -1102,11 +822,8 @@ function importRules() {
         if (!Array.isArray(rules)) throw new Error('Expected array');
         S.rules = rules;
         ruleIdCounter = Math.max(...rules.map(r => r.id || 0), 0) + 1;
-        renderRulesTable();
-        commitRules();
-      } catch(err) {
-        alert('Failed to import rules: ' + err.message);
-      }
+        renderRulesTable(); commitRules();
+      } catch(err) { alert('Failed to import rules: ' + err.message); }
     };
     reader.readAsText(f);
   };
@@ -1114,10 +831,11 @@ function importRules() {
 }
 
 /* =====================================================================
-   DASHBOARD ORCHESTRATION
+   DASHBOARD
    ===================================================================== */
 function renderDashboard() {
   renderStats();
+  renderOverviewToggles();
   renderDonut();
   renderBar();
   renderTrend();
@@ -1129,47 +847,36 @@ function renderDashboard() {
    STATS
    ===================================================================== */
 function renderStats() {
-  const evs = S.events;
-  const totalHours = evs.reduce((s, e) => s + e.durationH, 0);
+  const evs = activeEvents();
+  // Visible hours = active events minus any categories toggled off in the overview charts
+  const visibleEvs = evs.filter(e => !S.hiddenOverviewCats.has(e.category));
+  const totalHours = visibleEvs.reduce((s, e) => s + e.durationH, 0);
   const cats = new Set(evs.map(e => e.category));
   const uncatCount = evs.filter(e => e.category === 'Uncategorized').length;
   const catCount = cats.size - (cats.has('Uncategorized') ? 1 : 0);
+  const removedCount = S.events.filter(e => e.category === 'Removed').length;
+  const hiddenNote = S.hiddenOverviewCats.size > 0 ? ` <span style="font-size:10px;color:var(--text-muted)">(${S.hiddenOverviewCats.size} cat. hidden)</span>` : '';
 
   document.getElementById('stats-row').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-value">${evs.length.toLocaleString()}</div>
-      <div class="stat-label">Total Events</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">${fmtNum(totalHours)}</div>
-      <div class="stat-label">Total Hours</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">${catCount}</div>
-      <div class="stat-label">Categories</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" style="color:${uncatCount > 0 ? 'var(--warning)' : 'var(--success)'}">${uncatCount.toLocaleString()}</div>
-      <div class="stat-label">Uncategorized</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">${S.rules.length}</div>
-      <div class="stat-label">Active Rules</div>
-    </div>
-  `;
+    <div class="stat-card"><div class="stat-value">${evs.length.toLocaleString()}</div><div class="stat-label">Active Events</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtNum(totalHours)}</div><div class="stat-label">Visible Hours${hiddenNote}</div></div>
+    <div class="stat-card"><div class="stat-value">${catCount}</div><div class="stat-label">Categories</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:${uncatCount > 0 ? 'var(--warning)' : 'var(--success)'}">${uncatCount.toLocaleString()}</div><div class="stat-label">Uncategorized</div></div>
+    <div class="stat-card"><div class="stat-value">${removedCount}</div><div class="stat-label">Removed</div></div>
+    <div class="stat-card"><div class="stat-value">${S.rules.length}</div><div class="stat-label">Active Rules</div></div>`;
 }
 
 /* =====================================================================
    CATEGORY AGGREGATION
    ===================================================================== */
-function getCategoryAgg() {
+function getCategoryAgg(filterHidden = false) {
   const map = {};
-  for (const ev of S.events) {
+  for (const ev of activeEvents()) {
+    if (filterHidden && S.hiddenOverviewCats.has(ev.category)) continue;
     if (!map[ev.category]) map[ev.category] = { hours: 0, count: 0, color: ev.catColor };
     map[ev.category].hours += ev.durationH;
     map[ev.category].count++;
   }
-  // Sort by hours desc, Uncategorized last
   return Object.entries(map)
     .sort(([aK, aV], [bK, bV]) => {
       if (aK === 'Uncategorized') return 1;
@@ -1180,84 +887,90 @@ function getCategoryAgg() {
 }
 
 /* =====================================================================
+   OVERVIEW CATEGORY TOGGLES
+   ===================================================================== */
+function renderOverviewToggles() {
+  const agg = getCategoryAgg(false); // all cats for toggle buttons
+  const el = document.getElementById('overview-toggles');
+  if (!el) return;
+  el.innerHTML = agg.map(a => `
+    <div class="cat-toggle ${!S.hiddenOverviewCats.has(a.label) ? 'active' : ''}"
+         style="color:${a.color}"
+         onclick="toggleOverviewCat('${escHtml(a.label)}', this)">
+      <div class="cat-toggle-dot" style="background:${a.color}"></div>
+      ${escHtml(a.label)}
+    </div>`).join('');
+}
+
+function toggleOverviewCat(cat, el) {
+  if (S.hiddenOverviewCats.has(cat)) S.hiddenOverviewCats.delete(cat);
+  else S.hiddenOverviewCats.add(cat);
+  el.classList.toggle('active', !S.hiddenOverviewCats.has(cat));
+  renderDonut();
+  renderBar();
+}
+
+/* =====================================================================
    DONUT CHART
    ===================================================================== */
 function renderDonut() {
-  const agg = getCategoryAgg();
+  const agg = getCategoryAgg(true);
   if (!agg.length) return;
-
   if (S.charts.donut) { S.charts.donut.destroy(); S.charts.donut = null; }
-  const ctx = document.getElementById('donut-chart').getContext('2d');
   const total = agg.reduce((s, a) => s + a.hours, 0);
-
-  S.charts.donut = new Chart(ctx, {
+  S.charts.donut = new Chart(document.getElementById('donut-chart').getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: agg.map(a => a.label),
-      datasets: [{
-        data: agg.map(a => a.hours),
-        backgroundColor: agg.map(a => a.color),
-        borderColor: '#fff',
-        borderWidth: 2,
-        hoverOffset: 8,
-      }],
+      datasets: [{ data: agg.map(a => a.hours), backgroundColor: agg.map(a => a.color), borderColor: '#fff', borderWidth: 2, hoverOffset: 8 }],
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '62%',
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
       plugins: {
-        legend: {
-          position: 'right',
-          labels: { boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 12 } },
+        datalabels: {
+          display: ctx => total > 0 && (ctx.dataset.data[ctx.dataIndex] / total) >= 0.03,
+          formatter: (value) => total > 0 ? (value / total * 100).toFixed(1) + '%' : '',
+          color: '#fff',
+          font: { size: 11, weight: '700' },
+          textShadowColor: 'rgba(0,0,0,0.25)',
+          textShadowBlur: 3,
         },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const hrs = ctx.parsed;
-              const pct = total > 0 ? (hrs / total * 100).toFixed(1) : 0;
-              return ` ${fmtNum(hrs)}h  (${pct}%)`;
-            },
-          },
-        },
+        legend: { position: 'right', labels: { boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 12 } } },
+        tooltip: { callbacks: { label: ctx => { const h = ctx.parsed; const pct = total > 0 ? (h/total*100).toFixed(1) : 0; return ` ${fmtNum(h)}h  (${pct}%)`; } } },
       },
     },
   });
 }
 
 /* =====================================================================
-   BAR CHART
+   BAR CHART (with hour labels)
    ===================================================================== */
 function renderBar() {
-  const agg = getCategoryAgg();
+  const agg = getCategoryAgg(true);
   if (!agg.length) return;
-
   if (S.charts.bar) { S.charts.bar.destroy(); S.charts.bar = null; }
-  const ctx = document.getElementById('bar-chart').getContext('2d');
-
-  S.charts.bar = new Chart(ctx, {
+  S.charts.bar = new Chart(document.getElementById('bar-chart').getContext('2d'), {
     type: 'bar',
     data: {
       labels: agg.map(a => a.label),
       datasets: [{
-        label: 'Hours',
-        data: agg.map(a => a.hours),
-        backgroundColor: agg.map(a => a.color + 'cc'),
-        borderColor: agg.map(a => a.color),
-        borderWidth: 1.5,
-        borderRadius: 5,
+        label: 'Hours', data: agg.map(a => a.hours),
+        backgroundColor: agg.map(a => a.color + 'cc'), borderColor: agg.map(a => a.color),
+        borderWidth: 1.5, borderRadius: 5,
       }],
     },
     options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 50 } },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${fmtNum(ctx.parsed.x)} hours`,
-          },
+        tooltip: { callbacks: { label: ctx => ` ${fmtNum(ctx.parsed.x)} hours` } },
+        datalabels: {
+          display: true,
+          anchor: 'end', align: 'end',
+          formatter: v => fmtNum(v) + 'h',
+          font: { size: 11, weight: '600' },
+          color: '#475569',
         },
       },
       scales: {
@@ -1272,23 +985,16 @@ function renderBar() {
    MONTHLY TREND CHART
    ===================================================================== */
 function renderTrend() {
-  const agg = getCategoryAgg();
+  const agg = getCategoryAgg(false);
   if (!agg.length) return;
 
-  // Build sorted month list
   const monthSet = new Set();
-  for (const ev of S.events) {
-    if (ev.start) monthSet.add(monthKey(ev.start));
-  }
+  for (const ev of activeEvents()) { if (ev.start) monthSet.add(monthKey(ev.start)); }
   const months = Array.from(monthSet).sort();
-  const monthLabels = months.map(m => {
-    const [y, mo] = m.split('-').map(Number);
-    return new Date(y, mo - 1, 1).toLocaleString('default', { month: 'short', year: '2-digit' });
-  });
+  const monthLabels = months.map(m => { const [y,mo] = m.split('-').map(Number); return new Date(y,mo-1,1).toLocaleString('default',{month:'short',year:'2-digit'}); });
 
-  // Build per-category, per-month data
   const catMap = {};
-  for (const ev of S.events) {
+  for (const ev of activeEvents()) {
     if (!ev.start) continue;
     const mk = monthKey(ev.start);
     if (!catMap[ev.category]) catMap[ev.category] = {};
@@ -1296,32 +1002,20 @@ function renderTrend() {
   }
 
   const datasets = agg.map(a => ({
-    label: a.label,
-    data: months.map(mk => Math.round((catMap[a.label]?.[mk] || 0) * 10) / 10),
-    backgroundColor: a.color + 'cc',
-    borderColor: a.color,
-    borderWidth: 1.5,
-    borderRadius: 3,
+    label: a.label, data: months.map(mk => Math.round((catMap[a.label]?.[mk]||0)*10)/10),
+    backgroundColor: a.color+'cc', borderColor: a.color, borderWidth: 1.5, borderRadius: 3,
     hidden: S.hiddenCats.has(a.label),
   }));
 
   if (S.charts.trend) { S.charts.trend.destroy(); S.charts.trend = null; }
-  const ctx = document.getElementById('trend-chart').getContext('2d');
-  S.charts.trend = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: monthLabels, datasets },
+  S.charts.trend = new Chart(document.getElementById('trend-chart').getContext('2d'), {
+    type: 'bar', data: { labels: monthLabels, datasets },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
+        datalabels: { display: false },
         legend: { display: false },
-        tooltip: {
-          mode: 'index',
-          intersect: false,
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: ${fmtNum(ctx.parsed.y)}h`,
-          },
-        },
+        tooltip: { mode: 'index', intersect: false, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtNum(ctx.parsed.y)}h` } },
       },
       scales: {
         x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
@@ -1330,33 +1024,19 @@ function renderTrend() {
     },
   });
 
-  // Category toggle buttons
-  const filtersEl = document.getElementById('trend-filters');
-  filtersEl.innerHTML = agg.map(a => `
-    <div class="cat-toggle ${!S.hiddenCats.has(a.label) ? 'active' : ''}"
-         style="color:${a.color}"
-         onclick="toggleTrendCat('${escHtml(a.label)}', this)">
+  document.getElementById('trend-filters').innerHTML = agg.map(a => `
+    <div class="cat-toggle ${!S.hiddenCats.has(a.label) ? 'active' : ''}" style="color:${a.color}" onclick="toggleTrendCat('${escHtml(a.label)}', this)">
       <div class="cat-toggle-dot" style="background:${a.color}"></div>
       ${escHtml(a.label)}
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function toggleTrendCat(cat, el) {
-  if (S.hiddenCats.has(cat)) {
-    S.hiddenCats.delete(cat);
-    el.classList.add('active');
-  } else {
-    S.hiddenCats.add(cat);
-    el.classList.remove('active');
-  }
-  // Toggle in chart
+  if (S.hiddenCats.has(cat)) S.hiddenCats.delete(cat); else S.hiddenCats.add(cat);
+  el.classList.toggle('active', !S.hiddenCats.has(cat));
   if (S.charts.trend) {
     const ds = S.charts.trend.data.datasets.find(d => d.label === cat);
-    if (ds) {
-      ds.hidden = S.hiddenCats.has(cat);
-      S.charts.trend.update();
-    }
+    if (ds) { ds.hidden = S.hiddenCats.has(cat); S.charts.trend.update(); }
   }
 }
 
@@ -1366,49 +1046,45 @@ function toggleTrendCat(cat, el) {
 function populateFilters() {
   const catSel = document.getElementById('cat-filter');
   const monthSel = document.getElementById('month-filter');
-  const prevCat = catSel.value;
-  const prevMonth = monthSel.value;
+  const prevCat = catSel.value, prevMonth = monthSel.value;
 
   const cats = [...new Set(S.events.map(e => e.category))].sort();
-  catSel.innerHTML = '<option value="all">All Categories</option>' +
-    cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+  catSel.innerHTML = '<option value="all">All Categories</option>' + cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
   if (cats.includes(prevCat)) catSel.value = prevCat;
 
   const months = [...new Set(S.events.filter(e => e.start).map(e => monthKey(e.start)))].sort();
-  monthSel.innerHTML = '<option value="all">All Months</option>' +
-    months.map(mk => {
-      const [y, mo] = mk.split('-').map(Number);
-      const label = new Date(y, mo - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-      return `<option value="${mk}">${label}</option>`;
-    }).join('');
+  monthSel.innerHTML = '<option value="all">All Months</option>' + months.map(mk => {
+    const [y,mo] = mk.split('-').map(Number);
+    return `<option value="${mk}">${new Date(y,mo-1,1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;
+  }).join('');
   if (months.includes(prevMonth)) monthSel.value = prevMonth;
 }
 
 function getFilteredSorted() {
-  const { text, category, month } = S.table.filters;
+  const { text, category, month, removed } = S.table.filters;
   const lc = text.toLowerCase();
 
   let evs = S.events.filter(ev => {
+    const isRemoved = ev.category === 'Removed';
+    if (removed === 'active' && isRemoved) return false;
+    if (removed === 'removed' && !isRemoved) return false;
     if (text && !ev.subject.toLowerCase().includes(lc) && !ev.attendees.toLowerCase().includes(lc)) return false;
     if (category !== 'all' && ev.category !== category) return false;
-    if (month !== 'all' && ev.start && monthKey(ev.start) !== month) return false;
-    if (month !== 'all' && !ev.start) return false;
+    if (month !== 'all' && (!ev.start || monthKey(ev.start) !== month)) return false;
     return true;
   });
 
   const { col, dir } = S.table.sort;
   evs.sort((a, b) => {
     let va, vb;
-    if (col === 'start') { va = a.start ? a.start.getTime() : 0; vb = b.start ? b.start.getTime() : 0; }
+    if (col === 'start')    { va = a.start?.getTime()||0; vb = b.start?.getTime()||0; }
     else if (col === 'duration') { va = a.durationH; vb = b.durationH; }
     else if (col === 'category') { va = a.category; vb = b.category; }
-    else if (col === 'attendees') { va = a.attendees; vb = b.attendees; }
+    else if (col === 'attendees'){ va = a.attendees; vb = b.attendees; }
     else { va = a.subject; vb = b.subject; }
     if (typeof va === 'string') va = va.toLowerCase();
     if (typeof vb === 'string') vb = vb.toLowerCase();
-    if (va < vb) return dir === 'asc' ? -1 : 1;
-    if (va > vb) return dir === 'asc' ? 1 : -1;
-    return 0;
+    return (va < vb ? -1 : va > vb ? 1 : 0) * (dir === 'asc' ? 1 : -1);
   });
   return evs;
 }
@@ -1419,94 +1095,88 @@ function renderTable() {
   const totalPages = Math.max(1, Math.ceil(evs.length / pageSize));
   const safePage = Math.min(page, totalPages);
   S.table.page = safePage;
-  const start = (safePage - 1) * pageSize;
-  const pageEvs = evs.slice(start, start + pageSize);
+  const pageEvs = evs.slice((safePage-1)*pageSize, safePage*pageSize);
 
+  const activeEvHours = evs.filter(e => e.category !== 'Removed').reduce((s,e) => s+e.durationH, 0);
   document.getElementById('events-count-label').textContent =
-    `${evs.length.toLocaleString()} events  ·  ${fmtNum(evs.reduce((s,e) => s + e.durationH, 0))} hours`;
+    `${evs.length.toLocaleString()} events · ${fmtNum(activeEvHours)} hours`;
 
   const tbody = document.getElementById('events-tbody');
   if (!evs.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">No events match your filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No events match your filters.</td></tr>`;
     document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  tbody.innerHTML = pageEvs.map(ev => `
-    <tr>
-      <td class="cell-subject">
-        <span class="cell-subject-text" title="${escHtml(ev.subject)}">${escHtml(ev.subject)}</span>
-        ${ev.matchedKeyword ? `<div class="cell-match">matched: <em>${escHtml(ev.matchedKeyword)}</em></div>` : ''}
-      </td>
-      <td style="white-space:nowrap;color:var(--text-muted)">${ev.start ? fmtDateTime(ev.start) : '—'}</td>
-      <td style="white-space:nowrap;font-variant-numeric:tabular-nums">${fmtNum(ev.durationH)}</td>
-      <td>
-        <span class="badge" style="background:${ev.catColor}22;color:${ev.catColor === UNCATEGORIZED_COLOR ? '#64748b' : ev.catColor}">
-          <span class="badge-dot" style="background:${ev.catColor}"></span>
-          ${escHtml(ev.category)}
-        </span>
-      </td>
-      <td><span class="cell-attendees" title="${escHtml(ev.attendees)}">${escHtml(ev.attendees || '—')}</span></td>
-    </tr>
-  `).join('');
+  const availCats = getAvailableCategories();
+  tbody.innerHTML = pageEvs.map(ev => {
+    const isRemoved = ev.category === 'Removed';
+    const hasOverride = S.overrides.has(ev._id);
+    const catOptions = availCats.map(c =>
+      `<option value="${escHtml(c)}"${ev.category === c ? ' selected' : ''}>${escHtml(c)}</option>`
+    ).join('');
+    const clearOpt = hasOverride ? `<option value="__clear__">↺ Reset to rule</option>` : '';
+    const catSelect = `<select class="cat-select${hasOverride ? ' has-override' : ''}" onchange="setEventCategory(${ev._id}, this.value)" title="${hasOverride ? 'Override active — choose ↺ Reset to rule to revert' : 'Assign a category to this event'}">
+      ${clearOpt}${catOptions}
+    </select>`;
+    return `
+      <tr class="${isRemoved ? 'row-removed' : ''}">
+        <td class="cell-subject">
+          <span class="cell-subject-text" title="${escHtml(ev.subject)}">${escHtml(ev.subject)}</span>
+          ${ev.matchedKeyword ? `<div class="cell-match">matched: <em>${escHtml(ev.matchedKeyword)}</em></div>` : ''}
+        </td>
+        <td style="white-space:nowrap;color:var(--text-muted)">${ev.start ? fmtDateTime(ev.start) : '—'}</td>
+        <td style="white-space:nowrap;font-variant-numeric:tabular-nums">${fmtNum(ev.durationH)}</td>
+        <td>
+          <span class="badge" style="background:${ev.catColor}22;color:${ev.catColor === UNCATEGORIZED_COLOR ? '#64748b' : ev.catColor}">
+            <span class="badge-dot" style="background:${ev.catColor}"></span>
+            ${escHtml(ev.category)}
+          </span>
+        </td>
+        <td>${catSelect}</td>
+        <td><span class="cell-attendees" title="${escHtml(ev.attendees)}">${escHtml(ev.attendees || '—')}</span></td>
+      </tr>`;
+  }).join('');
 
   renderPagination(evs.length, safePage, totalPages);
 }
 
 function renderPagination(total, page, totalPages) {
-  const start = (page - 1) * S.table.pageSize + 1;
-  const end = Math.min(page * S.table.pageSize, total);
-
+  const start = (page-1)*S.table.pageSize+1, end = Math.min(page*S.table.pageSize, total);
   let pageNums = '';
-  const delta = 2;
-  const lo = Math.max(1, page - delta);
-  const hi = Math.min(totalPages, page + delta);
-  if (lo > 1) pageNums += `<button class="page-btn" onclick="goPage(1)">1</button>${lo > 2 ? '<span style="padding:0 4px">…</span>' : ''}`;
-  for (let p = lo; p <= hi; p++) {
-    pageNums += `<button class="page-btn ${p === page ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
-  }
-  if (hi < totalPages) pageNums += `${hi < totalPages - 1 ? '<span style="padding:0 4px">…</span>' : ''}<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
-
+  const lo = Math.max(1,page-2), hi = Math.min(totalPages,page+2);
+  if (lo > 1) pageNums += `<button class="page-btn" onclick="goPage(1)">1</button>${lo>2?'<span style="padding:0 4px">…</span>':''}`;
+  for (let p=lo; p<=hi; p++) pageNums += `<button class="page-btn ${p===page?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  if (hi < totalPages) pageNums += `${hi<totalPages-1?'<span style="padding:0 4px">…</span>':''}<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
   document.getElementById('pagination').innerHTML = `
     <span>Showing ${start}–${end} of ${total.toLocaleString()} events</span>
     <div class="page-btns">
       <button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>&#8249; Prev</button>
       ${pageNums}
       <button class="page-btn" onclick="goPage(${page+1})" ${page>=totalPages?'disabled':''}>Next &#8250;</button>
-    </div>
-  `;
+    </div>`;
 }
 
-function goPage(p) {
-  S.table.page = p;
-  renderTable();
-}
+function goPage(p) { S.table.page = p; renderTable(); }
 
 function sortTable(col) {
   const { sort } = S.table;
-  if (sort.col === col) {
-    sort.dir = sort.dir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sort.col = col;
-    sort.dir = 'asc';
-  }
-  // Update header classes
+  sort.dir = sort.col === col ? (sort.dir === 'asc' ? 'desc' : 'asc') : 'asc';
+  sort.col = col;
   ['subject','start','duration','category','attendees'].forEach(c => {
-    const th = document.getElementById('th-' + c);
-    if (!th) return;
-    th.classList.remove('sort-asc', 'sort-desc');
-    if (c === col) th.classList.add('sort-' + sort.dir);
+    const th = document.getElementById('th-'+c); if (!th) return;
+    th.classList.remove('sort-asc','sort-desc');
+    if (c === col) th.classList.add('sort-'+sort.dir);
   });
-  S.table.page = 1;
-  renderTable();
+  S.table.page = 1; renderTable();
 }
 
 function onFilterChange() {
-  S.table.filters.text = document.getElementById('tbl-search').value;
+  S.table.filters.text     = document.getElementById('tbl-search').value;
   S.table.filters.category = document.getElementById('cat-filter').value;
-  S.table.filters.month = document.getElementById('month-filter').value;
-  S.table.page = 1;
-  renderTable();
+  S.table.filters.month    = document.getElementById('month-filter').value;
+  S.table.filters.removed  = document.getElementById('removed-filter').value;
+  S.table.page = 1; renderTable();
 }
 
 /* =====================================================================
@@ -1514,9 +1184,9 @@ function onFilterChange() {
    ===================================================================== */
 function switchTab(tab) {
   S.currentTab = tab;
-  ['overview','trend','events'].forEach(t => {
-    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-    document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+  ['overview','trend','events','rules'].forEach(t => {
+    document.getElementById('tab-'+t)?.classList.toggle('active', t===tab);
+    document.getElementById('tab-btn-'+t)?.classList.toggle('active', t===tab);
   });
 }
 
@@ -1526,228 +1196,125 @@ function switchTab(tab) {
 function exportCSV() {
   if (!S.events.length) { alert('No events to export.'); return; }
   const rows = [
-    ['Subject','Start Date','Start Time','End Date','End Time','Duration (h)','Category','Matched Keyword','Attendees','Location','All Day'],
+    ['Subject','Start Date','Start Time','End Date','End Time','Duration (h)','Category','Matched Keyword','Attendees','Location','All Day','Removed'],
     ...S.events.map(ev => [
-      ev.subject,
-      ev.start ? fmtDateISO(ev.start) : '',
-      ev.start ? fmtTime(ev.start) : '',
-      ev.end ? fmtDateISO(ev.end) : '',
-      ev.end ? fmtTime(ev.end) : '',
-      ev.durationH,
-      ev.category,
-      ev.matchedKeyword,
-      ev.attendees,
-      ev.location,
-      ev.isAllDay ? 'Yes' : 'No',
+      ev.subject, ev.start?fmtDateISO(ev.start):'', ev.start?fmtTime(ev.start):'',
+      ev.end?fmtDateISO(ev.end):'', ev.end?fmtTime(ev.end):'',
+      ev.durationH, ev.category, ev.matchedKeyword, ev.attendees, ev.location,
+      ev.isAllDay?'Yes':'No', ev.category==='Removed'?'Yes':'No',
     ]),
   ];
-  const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const csv = rows.map(r => r.map(v => `"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
   downloadText(csv, 'calendar-analysis.csv', 'text/csv');
 }
 
 /* =====================================================================
    UTILITIES
    ===================================================================== */
-function monthKey(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-}
-
-function fmtDate(d) {
-  return d.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function fmtDateTime(d) {
-  return d.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' }) +
-    ' ' + d.toLocaleTimeString('default', { hour: 'numeric', minute: '2-digit' });
-}
-
-function fmtDateISO(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function fmtTime(d) {
-  return d.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
-}
-
-function fmtNum(n) {
-  return (Math.round(n * 10) / 10).toLocaleString('default', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-}
-
-function escHtml(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+function monthKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function fmtDate(d) { return d.toLocaleDateString('default',{month:'short',day:'numeric',year:'numeric'}); }
+function fmtDateTime(d) { return d.toLocaleDateString('default',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('default',{hour:'numeric',minute:'2-digit'}); }
+function fmtDateISO(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtTime(d) { return d.toLocaleTimeString('default',{hour:'2-digit',minute:'2-digit'}); }
+function fmtNum(n) { return (Math.round(n*10)/10).toLocaleString('default',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function escHtml(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function downloadText(content, filename, mime) {
-  const blob = new Blob([content], { type: mime });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
+  a.href = URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download = filename; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
 
 /* =====================================================================
-   SMART SUGGESTIONS
+   SMART SUGGESTIONS (sorted by total hours)
    ===================================================================== */
 let suggestTab = 'subject';
 
-// Strip common email subject prefixes so "Re: Weekly Sync" groups with "Weekly Sync"
 function normalizeSubject(s) {
-  return s
-    .replace(/^(re|fwd?|fw|aw)\s*[:\-]\s*/gi, '')
-    .replace(/^(cancelled?|canceled?|postponed?)\s*[:\-]\s*/gi, '')
-    .replace(/^\[(cancelled?|canceled?|postponed?|rescheduled?)\]\s*/gi, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
+  return s.replace(/^(re|fwd?|fw|aw)\s*[:\-]\s*/gi,'').replace(/^(cancelled?|canceled?|postponed?)\s*[:\-]\s*/gi,'')
+    .replace(/^\[(cancelled?|canceled?|postponed?|rescheduled?)\]\s*/gi,'').replace(/\s+/g,' ').trim().toLowerCase();
 }
-
-// Build a canonical key from an attendee string (sort + lowercase names)
 function normalizeAttendeeKey(attendees) {
-  if (!attendees || !attendees.trim()) return '';
-  return attendees
-    .split(/[;,]+/)
-    .map(a => a.trim().toLowerCase())
-    .filter(Boolean)
-    .sort()
-    .join('|');
+  if (!attendees?.trim()) return '';
+  return attendees.split(/[;,]+/).map(a=>a.trim().toLowerCase()).filter(Boolean).sort().join('|');
 }
-
-function toTitleCase(s) {
-  return s.replace(/\b\w/g, c => c.toUpperCase());
-}
+function toTitleCase(s) { return s.replace(/\b\w/g,c=>c.toUpperCase()); }
 
 function detectPatterns() {
-  const bySubject = {};
-  const byAttendees = {};
-
+  const bySubject = {}, byAttendees = {};
   for (const ev of S.rawEvents) {
-    // --- by subject ---
     const normSubj = normalizeSubject(ev.subject);
     if (normSubj) {
       if (!bySubject[normSubj]) bySubject[normSubj] = { norm: normSubj, display: ev.subject, events: [] };
       bySubject[normSubj].events.push(ev);
-      // prefer the shortest clean version as display label
-      if (ev.subject.length < bySubject[normSubj].display.length)
-        bySubject[normSubj].display = ev.subject;
+      if (ev.subject.length < bySubject[normSubj].display.length) bySubject[normSubj].display = ev.subject;
     }
-
-    // --- by attendees ---
     const normAtt = normalizeAttendeeKey(ev.attendees);
     if (normAtt) {
       if (!byAttendees[normAtt]) byAttendees[normAtt] = { norm: normAtt, events: [], subjects: {} };
       byAttendees[normAtt].events.push(ev);
-      byAttendees[normAtt].subjects[ev.subject] = (byAttendees[normAtt].subjects[ev.subject] || 0) + 1;
+      byAttendees[normAtt].subjects[ev.subject] = (byAttendees[normAtt].subjects[ev.subject]||0)+1;
     }
   }
-
-  // Derive best display name per attendee group
   for (const g of Object.values(byAttendees)) {
-    const top = Object.entries(g.subjects).sort((a, b) => b[1] - a[1])[0];
+    const top = Object.entries(g.subjects).sort((a,b)=>b[1]-a[1])[0];
     g.topSubject = top ? top[0] : '';
-    g.attendeeNames = g.norm.split('|').map(toTitleCase).slice(0, 5);
+    g.attendeeNames = g.norm.split('|').map(toTitleCase).slice(0,5);
   }
-
   return { bySubject, byAttendees };
 }
 
-function getMinOccurrences() {
-  return parseInt(document.getElementById('suggest-min').value, 10) || 2;
-}
+function getMinOccurrences() { return parseInt(document.getElementById('suggest-min')?.value,10)||2; }
 
 function renderSuggestions() {
   const minOcc = getMinOccurrences();
   const { bySubject, byAttendees } = detectPatterns();
   const listEl = document.getElementById('suggest-list');
   const emptyEl = document.getElementById('suggest-empty');
+  if (!listEl) return;
 
-  // Keywords already covered by existing rules
-  const existingKW = new Set(S.rules.flatMap(r => r.keywords.map(k => k.toLowerCase().trim())));
-
+  const existingKW = new Set(S.rules.flatMap(r=>r.keywords.map(k=>k.toLowerCase().trim())));
   let items = [];
 
   if (suggestTab === 'subject') {
-    items = Object.values(bySubject)
-      .filter(g => g.events.length >= minOcc)
-      .sort((a, b) => b.events.length - a.events.length)
-      .map(g => {
-        const totalH = g.events.reduce((s, e) => s + e.durationH, 0);
-        // Collect unique attendees across all instances
-        const allAttendees = [...new Set(
-          g.events.flatMap(e => e.attendees.split(/[;,]+/).map(a => a.trim()).filter(Boolean))
-        )].slice(0, 4);
-        const covered = existingKW.has(g.norm) || existingKW.has(g.display.toLowerCase().trim());
-        return {
-          key: 'subj__' + g.norm,
-          keyword: g.display,
-          suggestedCategory: g.display,
-          count: g.events.length,
-          totalH,
-          pills: allAttendees,
-          covered,
-        };
-      });
+    items = Object.values(bySubject).filter(g=>g.events.length>=minOcc).map(g => {
+      const totalH = g.events.reduce((s,e)=>s+e.durationH,0);
+      const allAttendees = [...new Set(g.events.flatMap(e=>e.attendees.split(/[;,]+/).map(a=>a.trim()).filter(Boolean)))].slice(0,4);
+      return { key:'subj__'+g.norm, keyword:g.display, suggestedCategory:g.display, count:g.events.length, totalH, pills:allAttendees, covered:existingKW.has(g.norm)||existingKW.has(g.display.toLowerCase().trim()) };
+    }).sort((a,b)=>b.totalH-a.totalH); // sort by total hours
   } else {
-    items = Object.values(byAttendees)
-      .filter(g => g.events.length >= minOcc)
-      .sort((a, b) => b.events.length - a.events.length)
-      .map(g => {
-        const totalH = g.events.reduce((s, e) => s + e.durationH, 0);
-        // Keyword = each attendee name (comma-separated)
-        const keyword = g.attendeeNames.join(', ');
-        const covered = g.attendeeNames.some(n => existingKW.has(n.toLowerCase().trim()));
-        // How many distinct subjects
-        const subjCount = Object.keys(g.subjects).length;
-        return {
-          key: 'att__' + g.norm,
-          keyword,
-          suggestedCategory: g.topSubject || g.attendeeNames[0] || keyword,
-          count: g.events.length,
-          totalH,
-          pills: [`${subjCount} distinct subject${subjCount !== 1 ? 's' : ''}`, g.topSubject].filter(Boolean),
-          covered,
-          isAttendee: true,
-          attendeeNames: g.attendeeNames,
-        };
-      });
+    items = Object.values(byAttendees).filter(g=>g.events.length>=minOcc).map(g => {
+      const totalH = g.events.reduce((s,e)=>s+e.durationH,0);
+      const keyword = g.attendeeNames.join(', ');
+      const subjCount = Object.keys(g.subjects).length;
+      return { key:'att__'+g.norm, keyword, suggestedCategory:g.topSubject||g.attendeeNames[0]||keyword, count:g.events.length, totalH, pills:[`${subjCount} distinct subject${subjCount!==1?'s':''}`,g.topSubject].filter(Boolean), covered:g.attendeeNames.some(n=>existingKW.has(n.toLowerCase().trim())), isAttendee:true, attendeeNames:g.attendeeNames };
+    }).sort((a,b)=>b.totalH-a.totalH); // sort by total hours
   }
 
-  if (!items.length) {
-    listEl.style.display = 'none';
-    emptyEl.style.display = 'block';
-    return;
-  }
-  listEl.style.display = 'flex';
-  emptyEl.style.display = 'none';
+  if (!items.length) { listEl.style.display='none'; emptyEl.style.display='block'; return; }
+  listEl.style.display='flex'; emptyEl.style.display='none';
 
   listEl.innerHTML = items.map(item => {
-    const safeId = item.key.replace(/[^a-z0-9]/gi, '_');
-    const pillsHTML = item.pills.map(p => `<span class="suggest-pill">${escHtml(p)}</span>`).join('');
-    const countPill = `<span class="suggest-pill highlight">${item.count}&times; occurrences</span>`;
-    const hoursPill = `<span class="suggest-pill highlight">${fmtNum(item.totalH)}h total</span>`;
-    const keywordNote = item.isAttendee
-      ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px">Keywords: ${escHtml(item.attendeeNames.join(', '))}</div>`
-      : '';
+    const safeId = item.key.replace(/[^a-z0-9]/gi,'_');
+    const pillsHTML = item.pills.map(p=>`<span class="suggest-pill">${escHtml(p)}</span>`).join('');
+    const keywordNote = item.isAttendee ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px">Keywords: ${escHtml(item.attendeeNames.join(', '))}</div>` : '';
     return `
-      <div class="suggest-item ${item.covered ? 'added' : ''}" id="sug-${safeId}">
+      <div class="suggest-item ${item.covered?'added':''}" id="sug-${safeId}">
         <div class="suggest-name">
           <div class="suggest-name-text" title="${escHtml(item.keyword)}">${escHtml(item.keyword)}</div>
           ${keywordNote}
-          <div class="suggest-pills">${countPill}${hoursPill}${pillsHTML}</div>
+          <div class="suggest-pills">
+            <span class="suggest-pill highlight">${item.count}&times; occurrences</span>
+            <span class="suggest-pill highlight">${fmtNum(item.totalH)}h total</span>
+            ${pillsHTML}
+          </div>
         </div>
         ${item.covered
           ? `<span class="suggest-added-badge">&#10003; Already covered</span>`
-          : `<input class="suggest-cat-input" type="text"
-               id="sug-cat-${safeId}"
-               value="${escHtml(item.suggestedCategory)}"
-               placeholder="Category name">
+          : `<input class="suggest-cat-input" type="text" id="sug-cat-${safeId}" value="${escHtml(item.suggestedCategory)}" placeholder="Category name">
              <div class="suggest-controls">
-               <button class="btn btn-primary btn-sm"
-                 onclick="addSuggestionAsRule('${escHtml(item.key)}','${escHtml(item.keyword)}','${item.isAttendee ? escHtml(JSON.stringify(item.attendeeNames)) : ''}')">
-                 + Add Rule
-               </button>
-               <button class="btn btn-secondary btn-sm"
-                 onclick="dismissSuggestion('${escHtml(item.key)}')" title="Dismiss">&#10005;</button>
+               <button class="btn btn-primary btn-sm" onclick="addSuggestionAsRule('${escHtml(item.key)}','${escHtml(item.keyword)}','${item.isAttendee?escHtml(JSON.stringify(item.attendeeNames)):''}')">+ Add Rule</button>
+               <button class="btn btn-secondary btn-sm" onclick="dismissSuggestion('${escHtml(item.key)}')">&#10005;</button>
              </div>`
         }
       </div>`;
@@ -1755,101 +1322,69 @@ function renderSuggestions() {
 }
 
 function addSuggestionAsRule(key, keyword, attendeeNamesJSON) {
-  const safeId = key.replace(/[^a-z0-9]/gi, '_');
-  const catInput = document.getElementById('sug-cat-' + safeId);
-  const category = (catInput ? catInput.value.trim() : '') || keyword;
-  if (!category) { if (catInput) catInput.focus(); return; }
-
-  // Build keyword list: for attendee mode use individual names; for subject mode use the full subject
+  const safeId = key.replace(/[^a-z0-9]/gi,'_');
+  const catInput = document.getElementById('sug-cat-'+safeId);
+  const category = (catInput?.value.trim()) || keyword;
+  if (!category) { catInput?.focus(); return; }
   let keywords;
-  if (attendeeNamesJSON) {
-    try { keywords = JSON.parse(attendeeNamesJSON); } catch(e) { keywords = [keyword]; }
-  } else {
-    keywords = [keyword];
-  }
-
-  const colorIdx = S.rules.length % PALETTE.length;
-  S.rules.push({ id: ruleIdCounter++, keywords, category, color: PALETTE[colorIdx] });
-  renderRulesTable();
-  commitRules();
-
-  const itemEl = document.getElementById('sug-' + safeId);
-  if (itemEl) {
-    itemEl.classList.add('added');
-    itemEl.innerHTML = `
-      <div class="suggest-name"><div class="suggest-name-text">${escHtml(keyword)}</div></div>
-      <span class="suggest-added-badge">&#10003; Added as &ldquo;${escHtml(category)}&rdquo;</span>`;
-  }
+  if (attendeeNamesJSON) { try { keywords = JSON.parse(attendeeNamesJSON); } catch(e) { keywords=[keyword]; } }
+  else keywords = [keyword];
+  S.rules.push({ id:ruleIdCounter++, keywords, category, color:PALETTE[S.rules.length%PALETTE.length] });
+  renderRulesTable(); commitRules();
+  const itemEl = document.getElementById('sug-'+safeId);
+  if (itemEl) { itemEl.classList.add('added'); itemEl.innerHTML=`<div class="suggest-name"><div class="suggest-name-text">${escHtml(keyword)}</div></div><span class="suggest-added-badge">&#10003; Added as &ldquo;${escHtml(category)}&rdquo;</span>`; }
 }
 
 function addAllSuggestions() {
   document.querySelectorAll('.suggest-item:not(.added)').forEach(item => {
-    const safeId = item.id.replace(/^sug-/, '');
+    const safeId = item.id.replace(/^sug-/,'');
     const catInput = item.querySelector('.suggest-cat-input');
     const nameEl = item.querySelector('.suggest-name-text');
-    const keyword = nameEl ? (nameEl.getAttribute('title') || nameEl.textContent.trim()) : '';
-    const category = catInput ? catInput.value.trim() : keyword;
-    if (!category || !keyword) return;
-
-    const colorIdx = S.rules.length % PALETTE.length;
-    S.rules.push({ id: ruleIdCounter++, keywords: [keyword], category, color: PALETTE[colorIdx] });
+    const keyword = nameEl ? (nameEl.getAttribute('title')||nameEl.textContent.trim()) : '';
+    const category = catInput?.value.trim() || keyword;
+    if (!category||!keyword) return;
+    S.rules.push({ id:ruleIdCounter++, keywords:[keyword], category, color:PALETTE[S.rules.length%PALETTE.length] });
     item.classList.add('added');
-    item.innerHTML = `
-      <div class="suggest-name"><div class="suggest-name-text">${escHtml(keyword)}</div></div>
-      <span class="suggest-added-badge">&#10003; Added as &ldquo;${escHtml(category)}&rdquo;</span>`;
+    item.innerHTML=`<div class="suggest-name"><div class="suggest-name-text">${escHtml(keyword)}</div></div><span class="suggest-added-badge">&#10003; Added as &ldquo;${escHtml(category)}&rdquo;</span>`;
   });
-  renderRulesTable();
-  commitRules();
+  renderRulesTable(); commitRules();
 }
 
 function dismissSuggestion(key) {
-  const safeId = key.replace(/[^a-z0-9]/gi, '_');
-  const el = document.getElementById('sug-' + safeId);
-  if (el) el.style.display = 'none';
+  const el = document.getElementById('sug-'+key.replace(/[^a-z0-9]/gi,'_'));
+  if (el) el.style.display='none';
 }
 
 function switchSuggestTab(tab) {
   suggestTab = tab;
-  document.getElementById('stab-subject').classList.toggle('active', tab === 'subject');
-  document.getElementById('stab-attendees').classList.toggle('active', tab === 'attendees');
+  document.getElementById('stab-subject').classList.toggle('active', tab==='subject');
+  document.getElementById('stab-attendees').classList.toggle('active', tab==='attendees');
   renderSuggestions();
 }
 
 /* =====================================================================
    PORTFOLIO COMPANIES
    ===================================================================== */
-// Stored as: [{id, name, category, color, members:[{role,name}]}]
-
-function saveCompanies() {
-  localStorage.setItem('cal-analyzer-companies', JSON.stringify(companies));
-}
+function saveCompanies() { localStorage.setItem('cal-analyzer-companies', JSON.stringify(companies)); }
 
 function showAddCompanyForm() {
-  const form = document.getElementById('company-form');
-  form.style.display = 'block';
+  document.getElementById('company-form').style.display = 'block';
   document.getElementById('co-name').value = '';
   document.getElementById('co-category').value = '';
-  const membersEl = document.getElementById('co-members');
-  membersEl.innerHTML = '';
-  // Start with two blank member rows
-  addMemberField('CEO');
-  addMemberField('CFO');
+  document.getElementById('co-members').innerHTML = '';
+  addMemberField('CEO'); addMemberField('CFO');
   document.getElementById('co-name').focus();
 }
-
-function hideCompanyForm() {
-  document.getElementById('company-form').style.display = 'none';
-}
+function hideCompanyForm() { document.getElementById('company-form').style.display = 'none'; }
 
 function addMemberField(roleHint) {
   const membersEl = document.getElementById('co-members');
-  const id = Date.now() + Math.random();
   const div = document.createElement('div');
   div.style.cssText = 'display:flex;gap:8px;align-items:center';
   div.innerHTML = `
-    <input type="text" class="rule-input co-member-role" placeholder="Role (e.g. CEO)" value="${escHtml(roleHint || '')}" style="width:130px;flex-shrink:0">
+    <input type="text" class="rule-input co-member-role" placeholder="Role (e.g. CEO)" value="${escHtml(roleHint||'')}" style="width:130px;flex-shrink:0">
     <input type="text" class="rule-input co-member-name" placeholder="Full name (e.g. Andrea Vargas)" style="flex:1">
-    <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()" title="Remove" style="flex-shrink:0">&#10005;</button>`;
+    <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()" style="flex-shrink:0">&#10005;</button>`;
   membersEl.appendChild(div);
   div.querySelector('.co-member-name').focus();
 }
@@ -1857,92 +1392,51 @@ function addMemberField(roleHint) {
 function saveCompany() {
   const name = document.getElementById('co-name').value.trim();
   if (!name) { document.getElementById('co-name').focus(); return; }
-
-  const categoryInput = document.getElementById('co-category').value.trim();
-  const category = categoryInput || name;
-
-  // Collect members
+  const category = document.getElementById('co-category').value.trim() || name;
   const members = [];
   document.querySelectorAll('#co-members > div').forEach(row => {
     const role = row.querySelector('.co-member-role').value.trim();
     const mname = row.querySelector('.co-member-name').value.trim();
     if (mname) members.push({ role, name: mname });
   });
-
-  // Build keywords: company name + each member's full name
-  const keywords = [name, ...members.map(m => m.name)].filter(Boolean);
-
-  const colorIdx = (S.rules.length + companies.length) % PALETTE.length;
-  const color = PALETTE[colorIdx];
-
-  // Create the rule
+  const keywords = [name, ...members.map(m=>m.name)].filter(Boolean);
+  const color = PALETTE[(S.rules.length+companies.length)%PALETTE.length];
   const ruleId = ruleIdCounter++;
-  S.rules.push({ id: ruleId, keywords, category, color });
-  renderRulesTable();
-  commitRules();
-
-  // Save company record
-  const co = { id: companyIdCounter++, name, category, color, members, ruleId };
-  companies.push(co);
-  saveCompanies();
-
-  hideCompanyForm();
-  renderCompaniesList();
+  S.rules.push({ id:ruleId, keywords, category, color });
+  renderRulesTable(); commitRules();
+  const co = { id:companyIdCounter++, name, category, color, members, ruleId };
+  companies.push(co); saveCompanies();
+  hideCompanyForm(); renderCompaniesList();
 }
 
 function deleteCompany(id) {
-  const co = companies.find(c => c.id === id);
-  if (!co) return;
-  // Remove associated rule if still present
-  S.rules = S.rules.filter(r => r.id !== co.ruleId);
-  companies = companies.filter(c => c.id !== id);
-  saveCompanies();
-  renderRulesTable();
-  commitRules();
-  renderCompaniesList();
+  const co = companies.find(c=>c.id===id); if (!co) return;
+  S.rules = S.rules.filter(r=>r.id!==co.ruleId);
+  companies = companies.filter(c=>c.id!==id);
+  saveCompanies(); renderRulesTable(); commitRules(); renderCompaniesList();
 }
 
 function renderCompaniesList() {
   const listEl = document.getElementById('companies-list');
   const emptyEl = document.getElementById('companies-empty');
-
-  if (!companies.length) {
-    if (emptyEl) emptyEl.style.display = 'block';
-    // Remove any existing company cards
-    listEl.querySelectorAll('.company-card').forEach(el => el.remove());
-    return;
-  }
-  if (emptyEl) emptyEl.style.display = 'none';
-
-  listEl.querySelectorAll('.company-grid').forEach(el => el.remove());
-
+  listEl.querySelectorAll('.company-grid').forEach(el=>el.remove());
+  if (!companies.length) { if(emptyEl) emptyEl.style.display='block'; return; }
+  if(emptyEl) emptyEl.style.display='none';
   const grid = document.createElement('div');
   grid.className = 'company-grid';
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px';
-
   grid.innerHTML = companies.map(co => {
     const membersHTML = co.members.length
-      ? co.members.map(m => `
-          <div style="display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)">
-            ${m.role ? `<span style="font-size:11px;color:var(--text-muted);width:52px;flex-shrink:0">${escHtml(m.role)}</span>` : ''}
-            <span style="font-size:13px">${escHtml(m.name)}</span>
-          </div>`).join('')
+      ? co.members.map(m=>`<div style="display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)">${m.role?`<span style="font-size:11px;color:var(--text-muted);width:52px;flex-shrink:0">${escHtml(m.role)}</span>`:''}<span style="font-size:13px">${escHtml(m.name)}</span></div>`).join('')
       : '<div style="font-size:12px;color:var(--text-muted)">No team members listed</div>';
-
-    return `
-      <div class="company-card" style="border:1px solid ${co.color}44;border-left:4px solid ${co.color};border-radius:10px;padding:14px;background:#fff">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div>
-            <div style="font-weight:700;font-size:14px">${escHtml(co.name)}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:1px">Category: ${escHtml(co.category)}</div>
-          </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteCompany(${co.id})" title="Remove company &amp; rule">&#10005;</button>
-        </div>
-        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Management Team</div>
-        ${membersHTML}
-      </div>`;
+    return `<div style="border:1px solid ${co.color}44;border-left:4px solid ${co.color};border-radius:10px;padding:14px;background:#fff">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div><div style="font-weight:700;font-size:14px">${escHtml(co.name)}</div><div style="font-size:11px;color:var(--text-muted);margin-top:1px">Category: ${escHtml(co.category)}</div></div>
+        <button class="btn btn-danger btn-sm" onclick="deleteCompany(${co.id})">&#10005;</button>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Management Team</div>
+      ${membersHTML}
+    </div>`;
   }).join('');
-
   listEl.appendChild(grid);
 }
 </script>
